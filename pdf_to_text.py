@@ -8,6 +8,7 @@ import os
 import sys
 
 def convert(fname):
+    
     pages=None
     if not pages:
         pagenums = set()
@@ -19,7 +20,7 @@ def convert(fname):
     converter = TextConverter(manager, output, laparams=LAParams())
     interpreter = PDFPageInterpreter(manager, converter)
 
-    infile = file(fname, 'rb')
+    infile = file(str(fname), 'rb')
     for page in PDFPage.get_pages(infile, pagenums):
         interpreter.process_page(page)
     infile.close()
@@ -30,6 +31,3 @@ def convert(fname):
 
 if __name__ == '__main__':
     convert(sys.argv[1])
-
-
-

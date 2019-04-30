@@ -19,27 +19,34 @@ name_list = [ 'Anne Roth','Brendan Weber','Emily Foley','Allison Wolf','Meredith
              'Jermaine Gaines']
 
 for dir in os.listdir('.'):
-    if dir == 'Craiglist':
+    if dir == 'Craigslist':
         for subdir in os.listdir(dir):
-            for files in os.listdir(dir+'/'+subdir):
-                if '.pdf' in files:
-                    text_file = open(dir+'/'+subdir+'/'+files.split('.')[0]+'.txt','w')
-                    output = subprocess.check_output('python2.7 pdf_to_text.py ' + dir+'/'+subdir+'/'+files, shell=True)
-                    lines = str(output, 'utf-8')
-                    for name in name_list:
-                        name_split = name.split(' ')
-                        if name_split[0].lower() in lines.lower() or name_split[1].lower() in lines.lower():
-                            line = lines.replace(name_split[0], '###').replace(name_split[1], '###')
-                    # remove email
-                    email_m = email_rg.search(lines)
-                    if email_m:
-                        line = line.replace(email_m.group(), '###@##.com')
-                    lines = line + '\n'
-                    # create new files
-                    if not os.path.exists(os.path.join('./updated_craiglist', subdir)):
-                        os.makedirs(os.path.join('./updated_craiglist', subdir))
-                    with open(os.path.join('./updated_craiglist', subdir,files.split('.')[0]+'.txt'), 'w', errors='ignore')as f:
-                        f.writelines(lines)
+            if not subdir.startswith('.') and os.path.isdir(os.path.join(dir, subdir)):
+                for files in os.listdir(dir+'/'+subdir):
+                    if '.pdf' in files.lower():
+                        text_file = open(dir+'/'+subdir+'/'+files.split('.')[0]+'.txt','w')
+                        print ('-----------------',files)
+                        files_mutate = files
+                        if ' ' in files:
+                            files_mutate = files.replace(' ', '\ ')
+                        print ('calling ','python2.7 pdf_to_text.py ' + dir+'/'+subdir+'/'+files_mutate)
+                        output = subprocess.check_output('python2.7 pdf_to_text.py ' + dir+'/'+subdir+'/'+files_mutate, shell=True)
+                        lines = str(output, 'utf-8')
+                        line = ''
+                        for name in name_list:
+                            name_split = name.split(' ')
+                            if name_split[0].lower() in lines.lower() or name_split[1].lower() in lines.lower():
+                                line = lines.replace(name_split[0], '###').replace(name_split[1], '###')
+                        # remove email
+                        email_m = email_rg.search(lines)
+                        if email_m:
+                            line = line.replace(email_m.group(), '###@##.com')
+                        lines = line + '\n'
+                        # create new files
+                        if not os.path.exists(os.path.join('./updated_craiglist', subdir)):
+                            os.makedirs(os.path.join('./updated_craiglist', subdir))
+                        with open(os.path.join('./updated_craiglist', subdir,files.split('.')[0]+'.txt'), 'w', errors='ignore')as f:
+                            f.writelines(lines)
 
 
 
